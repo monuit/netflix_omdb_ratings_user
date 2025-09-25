@@ -1,9 +1,16 @@
 const { Server } = require('@modelcontextprotocol/sdk/server/index.js');
 const { StdioServerTransport } = require('@modelcontextprotocol/sdk/server/stdio.js');
 const { CallToolRequestSchema, ListToolsRequestSchema } = require('@modelcontextprotocol/sdk/types.js');
+require('dotenv').config({ path: '../.env' });
 
 class StreamingRatingsServer {
   constructor() {
+    this.omdbApiKey = process.env.OMDB_API_KEY;
+    if (!this.omdbApiKey || this.omdbApiKey === 'your_omdb_api_key_here') {
+      console.error('Please set OMDB_API_KEY in .env file');
+      process.exit(1);
+    }
+
     this.server = new Server(
       {
         name: 'streaming-ratings-mcp-server',
@@ -61,8 +68,7 @@ class StreamingRatingsServer {
       const cleanTitle = title.replace(/\s*\([^)]*\)\s*/g, '').trim();
 
       // OMDB API call
-      const apiKey = 'b5cff164'; // From .env
-      const url = `https://www.omdbapi.com/?apikey=${apiKey}&t=${encodeURIComponent(cleanTitle)}&plot=short&r=json`;
+      const url = `https://www.omdbapi.com/?apikey=${this.omdbApiKey}&t=${encodeURIComponent(cleanTitle)}&plot=short&r=json`;
 
       const response = await fetch(url);
       const data = await response.json();

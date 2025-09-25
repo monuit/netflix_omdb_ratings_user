@@ -15,13 +15,24 @@
 // @match        https://www.amazon.in/*
 // @match        https://www.amazon.com.au/*
 // @grant        GM_xmlhttpRequest
+// @grant        GM_getValue
+// @grant        GM_setValue
 // ==/UserScript==
 
 (function() {
     'use strict';
 
-    // API key from .env
-    const apiKey = 'b5cff164';
+    // Get API key from storage or prompt user
+    let apiKey = GM_getValue('omdb_api_key');
+    if (!apiKey) {
+        apiKey = prompt('Please enter your OMDB API key (get from omdbapi.com):');
+        if (apiKey) {
+            GM_setValue('omdb_api_key', apiKey);
+        } else {
+            alert('OMDB API key is required for this script to work.');
+            return;
+        }
+    }
 
     // Function to fetch rating from OMDB
     function fetchRating(title, callback) {
